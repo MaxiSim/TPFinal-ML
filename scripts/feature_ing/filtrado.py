@@ -7,9 +7,8 @@ def read_data(filename):
     data = pd.read_csv(filename)
     return data
 
-
-def histogram_of_feature(feature):
-    data = read_data('../../data/pf_suvs_i302_1s2024.csv')
+def histogram_of_feature(feature, path_data):
+    data = read_data(path_data)
     fig = go.Figure()
     fig.add_trace(go.Histogram(x=data[feature]))
     fig.update_layout(title_text=f'Histogram of feature "{feature}"', xaxis_title_text=feature, yaxis_title_text='Frequency')
@@ -23,7 +22,21 @@ def histogram_of_feature(feature):
     fig.show()
 
 def ars_to_usd(data, price_usd):
-    if data['oneda'] == "$":
-        return data['monto'] / price_usd
-    else:
-        return data['monto']
+    data.loc[data['Moneda'] == "$", 'Precio'] = round(data.loc[data['Moneda'] == "$", 'Precio'] / price_usd, 2)
+    data.loc[data['Moneda'] == "$", 'Moneda'] = "U$S"
+    return data
+
+def rewrite_data(data, filename):
+    data.to_csv(filename, index=False)
+
+def delete_rows(filename, index):
+    data = read_data(filename)
+    data = data.drop(index)
+    rewrite_data(data, filename)
+    
+def find_outliers(data, feature):
+    Q1 = data[feature].quantile(0.25)
+    Q3 = data[feature].quantile(0.75)
+    IQR = Q3 - Q1
+    outliers = data[(data[feature] < (Q1 - 1.5 * IQR)) | (data[feature] > (Q3 + 1.5 * IQR))]
+    return outliers
