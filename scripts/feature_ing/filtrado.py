@@ -21,6 +21,7 @@ def histogram_of_feature(feature):
         print(f'Feature "{feature}" is not numeric. The type is {type(data[feature][random.randint(0, len(data))])}')
         pass
     fig.show()
+    
 
 def ars_to_usd(data, price_usd):
     if data['oneda'] == "$":
