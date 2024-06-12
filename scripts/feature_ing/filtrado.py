@@ -40,3 +40,52 @@ def find_outliers(data, feature):
     IQR = Q3 - Q1
     outliers = data[(data[feature] < (Q1 - 1.5 * IQR)) | (data[feature] > (Q3 + 1.5 * IQR))]
     return outliers
+
+def process_engine(filename):
+    data = read_data(filename)
+
+    max_engine = float(data['Motor'].str.extract(r'(\d+\.\d+)').dropna().max())
+    min_engine = float(data['Motor'].str.extract(r'(\d+\.\d+)').dropna().min())
+
+    print(f'Min engine: {min_engine}')
+    print(f'Max engine: {max_engine}')
+    
+    kernels = [] 
+    linespace = np.arange(min_engine, max_engine, 0.1)
+    for i in linespace:
+        kernels.append(round(i, 1))
+
+    for i in range(len(kernels)):
+        kernels[i] = str(kernels[i])
+
+    print(f'Kernels: {kernels}')
+
+    muestras_sin_motor = []
+
+    for j in range(len(data)):
+        motor = str(data.loc[j, 'Motor'])
+        version = str(data.loc[j, 'Versión'])
+
+        found = False
+        for kernel in kernels:
+            if convolucion_motor(motor, kernel) or convolucion_motor(version, kernel):
+                data.loc[j, 'Motor'] = kernel
+                found = True
+                break
+
+        if not found:
+            print(f'No se encontró motor para la muestra {j} con motor {motor} y versión {version}')
+            muestras_sin_motor.append(j)        
+    print(f'Muestras sin motor: {muestras_sin_motor}')
+    print(f'Cantidad de muestras sin motor: {len(muestras_sin_motor)}')
+
+        
+def convolucion_motor(version, kernel):
+    if kernel in version:
+        return True
+    return False
+   
+filename="data/pf_suvs_i302_1s2024.csv"
+
+process_engine(filename=filename)
+
