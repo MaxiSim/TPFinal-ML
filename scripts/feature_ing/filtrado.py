@@ -29,14 +29,39 @@ def ars_to_usd(data, price_usd):
 def rewrite_data(data, filename):
     data.to_csv(filename, index=False)
 
-def delete_rows(filename, index):
+def delete_rows(filename, index, newfile=None):
     data = read_data(filename)
     data = data.drop(index)
-    rewrite_data(data, filename)
+    if newfile == None:
+        rewrite_data(data, filename)
+    else:
+        rewrite_data(data, newfile)
+        
+def delete_columns(filename, feature, newfile=None):
+    data = read_data(filename)
+    data = data.drop(feature, axis=1)
+    if newfile == None:
+        rewrite_data(data, filename)
+    else:
+        rewrite_data(data, newfile)
     
-def find_outliers(data, feature):
-    Q1 = data[feature].quantile(0.25)
-    Q3 = data[feature].quantile(0.75)
-    IQR = Q3 - Q1
-    outliers = data[(data[feature] < (Q1 - 1.5 * IQR)) | (data[feature] > (Q3 + 1.5 * IQR))]
-    return outliers
+def find_outliers(data, feature, threshold):
+    num_outliers = []
+    for i in range(len(threshold)):
+           outliers = data.loc[data[feature] >= threshold[i]] 
+           num_outliers.append(outliers.shape[0])
+    return num_outliers, threshold
+
+def plot (outliers, thresholds):
+    fig = go.Figure()
+    # fig.add_trace(go.Box(y=outliers, boxpoints='outliers', jitter=0.3, pointpos=-1.8))  # Mostrar outliers
+    fig.add_trace(go.Scatter(x=thresholds, y=outliers, mode='markers', marker=dict(color='red', size=6), showlegend=False))  # Mostrar umbrales
+
+    # Personalizar el diseño del gráfico
+    fig.update_layout(title='Gráfico de Box con Outliers y Thresholds',
+                    xaxis=dict(title='Thresholds'),
+                    yaxis=dict(title='Valores'),
+                    showlegend=False)
+
+    # Mostrar el gráfico
+    fig.show()
