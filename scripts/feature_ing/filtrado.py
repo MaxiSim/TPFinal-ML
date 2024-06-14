@@ -309,3 +309,17 @@ def process_engine(filename):
 #     fig.update_layout(title_text=f'Prices of versions of model {modelo} ', xaxis_title_text='Year', yaxis_title_text='Price')
 #     fig.show()    
 
+
+
+# --------- Encoding categorical features ----------
+
+def encode_categorical(data, feature):
+    data[feature] = data[feature].astype('category')
+    data[feature] = data[feature].cat.codes
+
+    return data
+
+
+def one_hot_encoding(data, feature):
+    data = pd.get_dummies(data, columns=[feature])
+    return data
