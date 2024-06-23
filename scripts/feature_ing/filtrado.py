@@ -323,3 +323,7 @@ def encode_categorical(data, feature):
 def one_hot_encoding(data, feature):
     data = pd.get_dummies(data, columns=[feature])
     return data
+
+def target_encoding(data, feature, target):
+    data[feature] = data.groupby(feature)[target].transform('mean').astype(int)
+    return data
