@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import random
 import time
+from filtrado import read_data
 
 class DataCleaner:
     
@@ -13,16 +14,17 @@ class DataCleaner:
             self.clean_data()
         else:
             self.clean_eval_data()
-            
+
         
     def clean_data(self):
         # ---- precio ----
         self.ars_to_usd()
         price_outliers = self.find_outliers('Precio', 400000)
         self.delete_rows(price_outliers)
+        self.data = self.data.reset_index(drop=True)
         
         # ---- year ----
-        self.clean_year()
+        self.clean_year()        ###### esto borra filas
         self.set_age()
         
         # ---- km ----
@@ -30,15 +32,17 @@ class DataCleaner:
         avg_km = self.avg_km_year()
         same_digit_outliers = self.find_km_outliers_same_digit()
         real_km_outliers, saved_outliers = self.check_km_outliers(same_digit_outliers)
-        self.delete_rows(real_km_outliers)
         self.rewrite_sample('Kilómetros', saved_outliers, 0)
+        self.delete_rows(real_km_outliers)
+        self.data = self.data.reset_index(drop=True)
         
         km_outliers = self.find_km_outliers(700000)
         self.delete_rows(km_outliers)
-        
+        self.data = self.data.reset_index(drop=True)
         
         # ---- engine ----
-        self.process_engine()
+        self.process_engine()    
+        self.correct_engines()
         
         # ---- cylinders ----
         self.process_cylinders()
@@ -47,10 +51,8 @@ class DataCleaner:
         self.process_turbo()
         
         # ---- color ----
-        self.process_color()
-        
-        # ---- encode categorical features ----
-        self.encode_categorical('Color')
+        self.process_color()  
+        self.encode_categorical('Color')  
         
         # ---- one-hot encoding ----
         self.one_hot_encoding('Transmisión')
@@ -71,12 +73,20 @@ class DataCleaner:
         self.delete_columns('Moneda')
         
         
+        # ----- save data -----
+        self.rewrite_data('../../src/FINAL_DATASET.csv')
+        
+        
         
         
         
     def clean_eval_data(self):
         # ---- precio ----
         self.ars_to_usd()
+      
+        # ---- year ----
+        self.clean_year()
+        self.set_age()
         
         # ---- km ----
         self.km_to_int()
@@ -86,10 +96,6 @@ class DataCleaner:
         self.rewrite_sample('Kilómetros', real_km_outliers, avg_km * self.data['Edad'])
         self.rewrite_sample('Kilómetros', km_outliers, avg_km * self.data['Edad'])
         self.rewrite_sample('Kilómetros', saved_outliers, 0)
-        
-        # ---- year ----
-        self.clean_year()
-        self.set_age()
         
         # ---- engine ----
         self.process_engine()
@@ -124,11 +130,16 @@ class DataCleaner:
         self.delete_columns('Versión')
         self.delete_columns('Moneda')
         
+        # ----- save data -----
+        self.rewrite_data('../../src/FINAL_EVAL_DATASET.csv')
     
     # --------- Read and rewrite dataset ----------
 
-    def rewrite_data(self, data, filename):
+    def rewrite_data(self, filename):
+        data = self.data
+        print("Saving data into file...")
         data.to_csv(filename, index=False)
+        print("Data saved successfully!")
 
     def delete_rows(self, indexes):
         data = self.data
@@ -205,8 +216,9 @@ class DataCleaner:
         outliers = outliers.sort_values(ascending=False)
         if not self.eval_data:
             self.delete_rows(outliers)
+            self.data = self.data.reset_index(drop=True)
         else:
-            self.rewrite_sample('Año', outliers, outliers['kilometros'] // outliers['Km promedio por año'])
+            self.rewrite_sample('Año', outliers, outliers['kilometros'] // 10900) # 10900 is the average km per year in the training data
         
     def set_age(self):
         data = self.data
@@ -281,7 +293,6 @@ class DataCleaner:
         probabilities = color_distribution.values
 
         data.loc[muestras_sin_color, 'Color'] = np.random.choice(colors, size=len(muestras_sin_color), p=probabilities)
-        data = data.drop(muestras_sin_color)              ######### PREGUNTAR A MAXI ##########
 
         self.data = data
 
@@ -338,7 +349,7 @@ class DataCleaner:
         self.data = data
 
 
-    def process_engine(self):  ## EL PROBLEMA DE ESTA FUNCION ES QUE NO USA LAS UTILITDADES DEL FRAMEWORK Y EXPLOTA
+    def process_engine(self):  
         data = self.data
         
         motor_values = data['Motor'].str.extract(r'(\d+\.\d+)').dropna().astype(float)
@@ -351,7 +362,7 @@ class DataCleaner:
             kernels.append(str(round(i, 1)))
 
         for j in range(len(data)):
-            motor = str(data.loc[j, 'Motor'])  ## ACA ESTA TIRANDO ERROR Y NO SE POR QUE
+            motor = str(data.loc[j, 'Motor'])  
             version = str(data.loc[j, 'Versión'])
 
             found = False
@@ -365,9 +376,38 @@ class DataCleaner:
                 if str(data.loc[j, 'Tipo de combustible']) not in ['Híbrido', 'Eléctrico']:
                     data.loc[j, 'Motor'] = 'No especificado'
                 else:
-                    data.loc[j, 'Motor'] = 'No aplica'  # aca hay que agregar que si no aplica le busco un auto del mismo modelo y copio el motor
+                    data.loc[j, 'Motor'] = 'No aplica'  
 
         self.data = data
+        
+    def correct_engines(self):
+        data = self.data
+        wrong_engines = data.loc[(data['Motor'] == 'No aplica') | (data['Motor'] == 'No especificado')].index
+ 
+        for index in wrong_engines:
+            model = data.loc[index, 'Modelo']
+            valid_engines = data.loc[(data['Modelo'] == model) & ~(data['Motor'].isin(['No aplica', 'No especificado']))]['Motor']
+            
+            if not valid_engines.empty:
+                data.loc[index, 'Motor'] = valid_engines.iloc[0]
+            elif data.loc[index, 'Motor'] == 'No aplica':
+                if data.loc[index, 'Tipo de combustible'] == 'Híbrido':
+                    data.loc[index, 'Motor'] = '1.5'
+                elif data.loc[index, 'Tipo de combustible'] == 'Eléctrico':
+                    data.loc[index, 'Motor'] = '-1'
+            else:
+                marca = data.loc[index, 'Marca']
+                valid_engines = data.loc[(data['Marca'] == marca) & ~(data['Motor'].isin(['No especificado']))]
+                if not valid_engines.empty:
+                    prices = valid_engines['Precio']
+                    closest_price = min(prices, key=lambda x: abs(x - data.loc[index, 'Precio']))
+                    data.loc[index, 'Motor'] = data.loc[data['Precio'] == closest_price, 'Motor'].iloc[0]
+
+                else:
+                    data.loc[index, 'Motor'] = 'No especificado'
+    
+        self.data = data
+            
 
 
     # def process_version(filename):
@@ -396,14 +436,16 @@ class DataCleaner:
 
 # --------- Encoding categorical features ----------
 
-    def encode_categorical(self, data, feature):
+    def encode_categorical(self, feature):
+        data = self.data
         data[feature] = data[feature].astype('category')
         data[feature] = data[feature].cat.codes
 
         self.data = data
 
 
-    def one_hot_encoding(self, data, feature):
+    def one_hot_encoding(self, feature):
+        data = self.data
         data = pd.get_dummies(data, columns=[feature])
         self.data = data
 
