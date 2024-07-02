@@ -1,0 +1,9 @@
+data:
+  filepath: "data/data.csv"
+model:
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+train:
+  test_size: 0.2
+  random_state: 42
