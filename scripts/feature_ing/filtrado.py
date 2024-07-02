@@ -283,7 +283,6 @@ def process_engine(filename):
             else:
                 data.loc[j, 'Motor'] = 'No aplica'
 
-    # print(f'Cantidad de motores: {data["Motor"].value_counts()}')
     return data
 
 
