@@ -11,19 +11,15 @@ def create_new_features(data):
     # Características binarias
     df['High_Mileage'] = (df['Kilómetros'] > 100000).astype(int)
     df['Is_Old'] = (df['Edad'] > 10).astype(int)
-    df['Has_Turbo'] = (df['Turbo'] == 1).astype(int)
-    df['Is_Automatic'] = (df['Transmisión_Automática'] == True).astype(int)
 
     # Ratios
-    df['Km_per_Year'] = df['Kilómetros'] / df['Edad'].replace(0, np.nan)
     df['Engine_Size_per_Year'] = df['Motor'] / df['Edad'].replace(0, np.nan)
     df['Km_per_Cylinder'] = df['Kilómetros'] / df['Cilindros'].replace(0, np.nan)
     df['Price_per_Km'] = df['Precio'] / df['Kilómetros'].replace(0, np.nan)
 
     # Interacciones entre características
-    df['Age_of_Model'] = 2024 - df['Año']
     df['Motor_Age_Interaction'] = df['Motor'] * df['Edad']
-    df['Mileage_Turbo_Interaction'] = df['Kilómetros'] * df['Has_Turbo']
+    df['Mileage_Turbo_Interaction'] = df['Kilómetros'] * df['Turbo']
     df['Motor_Cylinder_Interaction'] = df['Motor'] * df['Cilindros']
 
     # Reemplazar valores infinitos y NaN
@@ -47,7 +43,7 @@ def create_new_features(data):
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 sys.path.append(project_root)
 
-data = pd.read_csv(os.path.join(project_root, 'data/FINAL_DATASET.csv'))
+data = pd.read_csv(os.path.join(project_root, 'data/CLEAN_TRAIN_DATASET.csv'))
 data = create_new_features(data)
 
 # Guardar el nuevo dataset con las características generadas

@@ -135,7 +135,7 @@ class DataCleaner:
         self.delete_columns('Moneda')
         
         # ----- save data -----
-        self.rewrite_data('../../data/CLEAN_EVAL_DATASET.csv')
+        self.rewrite_data('../../data/CLEAN_TEST_DATASET.csv')
     
     # --------- Read and rewrite dataset ----------
 

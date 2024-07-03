@@ -36,8 +36,8 @@ def main(args):
         model = get_model(model_type)
     
     model.train(X_train, y_train)
-
-    mae, mse, rmse, r2 = model.evaluate(X_test, y_test)
+    
+    mae, mse, rmse, r2 = model.evaluate(X_train, y_train)
     logging.info(f"Resultados del modelo {model_type} - MAE: {mae}, MSE: {mse}, RMSE: {rmse}, R^2: {r2}")
     
     print(f"Modelo: {model_type}")
