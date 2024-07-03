@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import joblib
+from skopt import BayesSearchCV
 
 class RandomForestModel:
     def __init__(self):
@@ -27,4 +28,28 @@ class RandomForestModel:
     def load_model(self, filepath):
         self.model = joblib.load(filepath)
 
+    def optimize_bayesians(self, X_train, Y_train):
+        param_space = {
+            'n_estimators': (100, 300),
+            'max_depth': (3, 9),
+            'min_samples_split': (2, 10),
+            'min_samples_leaf': (1, 5),
+            'max_features': (0.1, 1.0)
+        }
 
+        opt = BayesSearchCV(
+            estimator=self.model,
+            search_spaces=param_space,
+            n_iter=32,
+            cv=3,
+            n_jobs=-1,
+            verbose=2,
+            scoring='neg_mean_squared_error',
+            random_state=42
+        )
+        opt.fit(X_train, Y_train)
+
+        self.model = opt.best_estimator_
+        return opt.best_params_
+    
+    

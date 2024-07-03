@@ -29,11 +29,18 @@ def main(args):
     
     logging.info(f"Entrenando modelo {model_type}")
  
-    if args.optimize:
-        model, params_opt = get_model(model_type, optimize=True, X_train=X_train, y_train=y_train)
-        logging.info(f"Mejores hiperparámetros encontrados: {params_opt}")
+    if model_type == 'nn':
+        if args.optimize:
+            model, params_opt = get_model(model_type, optimize=True, X_train=X_train, y_train=y_train)
+            logging.info(f"Mejores hiperparámetros encontrados: {params_opt}")
+        else:
+            model = get_model(model_type, input_dim=X_train.shape[1])
     else:
-        model = get_model(model_type)
+        if args.optimize:
+            model, params_opt = get_model(model_type, optimize=True, X_train=X_train, y_train=y_train)
+            logging.info(f"Mejores hiperparámetros encontrados: {params_opt}")
+        else:
+            model = get_model(model_type)
     
     model.train(X_train, y_train)
     
@@ -51,13 +58,17 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Entrenar un modelo de ML especificado.")
-    parser.add_argument('model', type=str, help="El nombre del modelo a usar (e.g., 'linear_regression', 'random_forest', 'xgboost')")
+    parser.add_argument('model', type=str, help="El nombre del modelo a usar (e.g., 'linear_regression', 'random_forest', 'xgboost', 'nn')")
     parser.add_argument('--optimize', action='store_true', help="Optimizar los hiperparámetros del modelo")
     parser.add_argument('--save_model', action='store_true', help="Guardar el modelo entrenado")
     parser.add_argument('--name', type=str, help="El nombre del archivo del modelo guardado")
     args = parser.parse_args()
 
+    if args.optimize and args.model == 'linear_regression':
+        parser.error("No se pueden optimizar los hiperparámetros de un modelo de regresión lineal")
+    if args.optimize and args.model == 'nn':
+        parser.error("No esta soportada la optimización de hiperparámetros para el modelo de red neuronal")
     if args.save_model and not args.name:
-        parser.error("--save_model requires --name argument")
+        parser.error("--save_model requiere --name para especificar el nombre del archivo del modelo guardado")
 
     main(args)
