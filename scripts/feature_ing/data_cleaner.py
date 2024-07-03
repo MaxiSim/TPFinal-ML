@@ -54,6 +54,9 @@ class DataCleaner:
         self.process_color()  
         self.encode_categorical('Color')  
         
+        # ---- car manufacturer ----
+        self.clean_car_manufacturer()
+        
         # ---- one-hot encoding ----
         self.one_hot_encoding('Transmisión')
         self.one_hot_encoding('Marca')
@@ -108,9 +111,10 @@ class DataCleaner:
         
         # ---- color ----
         self.process_color()
-        
-        # ---- encode categorical features ----
         self.encode_categorical('Color')
+        
+        # ---- car manufacturer ----
+        self.clean_car_manufacturer()
         
         # ---- one-hot encoding ----
         self.one_hot_encoding('Transmisión')
@@ -246,9 +250,18 @@ class DataCleaner:
         if kernel.lower() in feature.lower():
             return True
         return False
+    
+# --------- Clean car manufacturer ----------
+
+    def clean_car_manufacturer(self):
+        self.data.loc[self.data['Marca'] == 'DS7', 'Marca'] = 'DS'
+        self.data.loc[self.data['Marca'] == 'DS AUTOMOBILES', 'Marca'] = 'DS'
+        self.data.loc[self.data['Marca'] == 'hiunday', 'Marca'] = 'Hyundai'
+        self.data.loc[self.data['Marca'] == 'Jetur', 'Marca'] = 'Jetour'
+
         
 
-## --------- Clean color ----------
+# --------- Clean color ----------
 
 
     def process_color(self):
