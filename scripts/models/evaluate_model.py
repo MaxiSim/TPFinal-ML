@@ -18,6 +18,14 @@ from src.data.load_data import load_data
 from src.utils.utils import *
 
 def main(args):
+    # main
+    # Función principal que evalúa un modelo de ML especificado.
+    # El modelo a evaluar debe ser un archivo .joblib guardado en la carpeta src/models/saved.
+    # Se deben especificar el tipo de modelo y el nombre del archivo .joblib.
+    # Se evalúa el modelo con métricas de regresión: MAE, MSE, RMSE y R^2.
+    # Parámetros:
+    # - args: Argumentos de línea de comandos.
+    
     model_type = args.type
     model_name = args.saved_model_name
 

@@ -19,9 +19,9 @@ def delete_rows(data, indexes, filename):
         data = data.drop(index)
     rewrite_data(data, filename)
         
-def delete_columns(data, feature, filename):
+def delete_columns(data, feature):
     data = data.drop(feature, axis=1)
-    rewrite_data(data, filename)
+    return data
 
 
 # --------- Plots and histograms ----------
