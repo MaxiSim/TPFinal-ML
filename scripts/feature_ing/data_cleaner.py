@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import time
 import os
+import json
 
 
 
@@ -25,6 +26,7 @@ class DataCleaner:
         if not self.eval_data: 
             self.clean_data()
         else:
+            self.load_encodings()
             self.clean_eval_data()
 
         
@@ -81,7 +83,7 @@ class DataCleaner:
         
         # ---- target encoding ----
         self.model_encoding = self.target_encoding('Modelo', 'Precio')
-        
+        self.save_encodings()
         # ---- delete columns ----
            # ---- suv / cameras / doors / title ----
         self.delete_columns('Tipo de carrocería')
@@ -102,19 +104,24 @@ class DataCleaner:
         # clean_eval_data
         # Función que limpia y preprocesa los datos del dataset de evaluación.
         # Corre en orden las funciones de limpieza y preprocesamiento de las variables del dataset.
+        
+        self.delete_columns('id')
+        self.save_corrupt_data()
       
         # ---- year ----
         self.clean_year()
         self.set_age()
         
-        # ---- km ----
+        # # ---- km ----
         self.km_to_int()
         avg_km = self.avg_km_year()
-        km_outliers, same_digit_outliers = self.find_km_outliers(700000)
+        same_digit_outliers = self.find_km_outliers_same_digit()
         real_km_outliers, saved_outliers = self.check_km_outliers(same_digit_outliers)
-        self.rewrite_sample('Kilómetros', real_km_outliers, avg_km * self.data['Edad'])
-        self.rewrite_sample('Kilómetros', km_outliers, avg_km * self.data['Edad'])
+        self.rewrite_sample('Kilómetros', real_km_outliers, 10900, True)
         self.rewrite_sample('Kilómetros', saved_outliers, 0)
+        
+        km_outliers = self.find_km_outliers(700000)
+        self.rewrite_sample('Kilómetros', km_outliers, 10900, True)
         
         # ---- engine ----
         self.process_engine()
@@ -140,7 +147,7 @@ class DataCleaner:
         self.one_hot_encoding('Tipo de vendedor')
         
         # ---- target encoding ----
-        self.target_encoding('Modelo', 'Precio')
+        self.eval_model_encode()
         
         # ---- delete columns ----
             # ---- suv / cameras / doors / title ----
@@ -149,7 +156,6 @@ class DataCleaner:
         self.delete_columns('Puertas')
         self.delete_columns('Título')
         self.delete_columns('Versión')
-        self.delete_columns('Moneda')
         
         # ----- save data -----
         self.rewrite_data('data/CLEAN_TEST_DATASET.csv')
@@ -194,7 +200,7 @@ class DataCleaner:
         data = data.drop(feature, axis=1)
         self.data = data
         
-    def rewrite_sample(self, feature, indexes, value):
+    def rewrite_sample(self, feature, indexes, value, avg=False):
         # rewrite_sample
         # Función que reemplaza el valor de una cierta feature para un conjunto de índices.
         # Parámetros:
@@ -203,6 +209,9 @@ class DataCleaner:
         # - value: Valor a reemplazar.
         
         data = self.data
+        if avg == True:
+            for index in indexes:
+                data.loc[index, feature] = value * data.loc[index, 'Edad']
         for index in indexes:
             data.loc[index, feature] = value
         self.data = data
@@ -233,7 +242,7 @@ class DataCleaner:
         except:
             print("The column 'Kilómetros' is already clean")
         self.data = data
-        
+            
     def find_km_outliers_same_digit(self):
         # find_km_outliers_same_digit
         # Función que encuentra los outliers en la columna de kilómetros que tienen todos los dígitos iguales.
@@ -557,4 +566,31 @@ class DataCleaner:
     def eval_model_encode(self):
         data = self.data
         encoding_dict = self.model_encoding
-        data['Modelo'] = data['Modelo'].map(encoding_dict)
+        for index in range(len(data)):
+            try:
+                data.loc[index, 'Modelo'] = encoding_dict[data.loc[index, 'Modelo']]
+            except:
+                print(f"Error in sample {index} with model {data.loc[index, 'Modelo']}")
+                
+                data.loc[index, 'Modelo'] = 0
+            
+    # data['Modelo'] = data['Modelo'].map(encoding_dict)
+    
+    # ------- SAVE DATA -------
+    def save_corrupt_data(self):
+        data = self.data
+        corrupt_samples = data.loc[data.isnull().sum(axis=1) > 3].index
+        for sample in corrupt_samples:
+            data.loc[sample] = data.loc[sample+1]
+        self.data = data
+        
+    def save_encodings(self):
+        with open(os.path.join(self.root, 'scripts/feature_ing/model_encoding.json'), 'w') as file:
+            json.dump(self.model_encoding, file)
+        print("Encodings saved successfully!")
+        
+    def load_encodings(self):
+        with open(os.path.join(self.root, 'scripts/feature_ing/model_encoding.json'), 'r') as file:
+            self.model_encoding = json.load(file)
+        print("Encodings loaded successfully!")
+        

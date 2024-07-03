@@ -26,7 +26,7 @@ def main(args):
     
     model_type = args.model
     
-    filepath = os.path.join(project_root, 'data/BOOST_DATASET.csv')  # Ruta al archivo CSV
+    filepath = os.path.join(project_root, 'data/BOOST_TRAIN_DATASET.csv')  # Ruta al archivo CSV
     logging.info(f"Cargando datos desde {filepath}")
     data = load_data(filepath)
     

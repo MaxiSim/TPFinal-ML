@@ -5,13 +5,13 @@ import sys
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 sys.path.append(project_root)
 
-from data_cleaner import DataCleaner
+from scripts.feature_ing.data_cleaner import DataCleaner
 from src.data.load_data import load_data
-from data_eeng import create_new_features
-from oversampling import oversampling
+from scripts.feature_ing.data_eeng import create_new_features
+from scripts.feature_ing.oversampling import oversampling
 
 
-def process_test_data():
+def process_test_data(filename):
     # Funcion que llama al DataCleaner para limpiar los datos y luego crea nuevas fratures.
     # Genera un nuevo dataset procesado y con las nuevas características.
 
@@ -19,7 +19,7 @@ def process_test_data():
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
     sys.path.append(project_root)
     
-    data = load_data(os.path.join(project_root, 'data/pf_suvs_test_ids_i302_1s2024.csv'))
+    data = load_data(os.path.join(project_root, filename))
     cleaner = DataCleaner(data, project_root, eval_data=True) 
 
     data = pd.read_csv(os.path.join(project_root, 'data/CLEAN_TRAIN_DATASET.csv'))
@@ -28,6 +28,6 @@ def process_test_data():
     # Guardar el nuevo dataset con las características generadas
     data.to_csv(os.path.join(project_root, 'data/BOOST_TEST_DATASET.csv'), index=False)
     
-
-
-process_test_data()
+    
+    
+# 'data/pf_suvs_test_ids_i302_1s2024.csv'
