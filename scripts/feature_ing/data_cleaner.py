@@ -77,7 +77,7 @@ class DataCleaner:
         
         
         # ----- save data -----
-        self.rewrite_data('../../src/FINAL_DATASET.csv')
+        self.rewrite_data('../../data/CLEAN_TRAIN_DATASET.csv')
         
         
         
@@ -135,7 +135,7 @@ class DataCleaner:
         self.delete_columns('Moneda')
         
         # ----- save data -----
-        self.rewrite_data('../../src/FINAL_EVAL_DATASET.csv')
+        self.rewrite_data('../../data/CLEAN_EVAL_DATASET.csv')
     
     # --------- Read and rewrite dataset ----------
 
