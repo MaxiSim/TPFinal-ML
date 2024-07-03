@@ -16,6 +16,14 @@ from src.data.load_data import load_data
 from src.utils.utils import get_model
 
 def main(args):
+    # main
+    # Función principal que entrena un modelo de ML especificado y evalúa su rendimiento.
+    # El modelo entrenado puede ser de tipo 'linear_regression', 'random_forest' o 'xgboost'.
+    # Se pueden optimizar los hiperparámetros del modelo con la opción --optimize.
+    # Se puede guardar el modelo entrenado con la opción --save_model, especificando un nombre con --name.
+    # Parámetros:
+    # - args: Argumentos de línea de comandos.
+    
     model_type = args.model
     
     filepath = os.path.join(project_root, 'data/BOOST_DATASET.csv')  # Ruta al archivo CSV
