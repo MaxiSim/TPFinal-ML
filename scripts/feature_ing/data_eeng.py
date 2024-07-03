@@ -42,19 +42,13 @@ def create_new_features(data):
 
 def oversampling(data):
     model_counts = data['Modelo'].value_counts()
-    print(model_counts.to_string())
 
-    # Duplicate samples for models with less than 1200 samples up to 1500 samples
     for model, count in model_counts.items():
         if count < 1200:
             duplicates_needed = 1500 - count
             model_samples = data[data['Modelo'] == model]
             duplicated_samples = model_samples.sample(n=duplicates_needed, replace=True)
             data = pd.concat([data, duplicated_samples])
-
-
-    model_counts = data['Modelo'].value_counts()
-    print(model_counts.to_string())
     
     return data
 
