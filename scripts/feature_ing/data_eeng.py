@@ -1,10 +1,15 @@
 import pandas as pd
 from sklearn.preprocessing import PolynomialFeatures
-import os
-import sys
 import numpy as np
 
 def create_new_features(data):
+    # create_new_features
+    # Función que crea nuevas features a partir en base a transformaciones lineales entre otras features existentes.
+    # Parámetros:
+    # - data: DataFrame con los datos limpiados.
+    # Retorna:
+    # - df: DataFrame con las nuevas features añadidas.
+    
     # Copiar el dataframe original para no modificar el original
     df = data.copy()
     
@@ -38,13 +43,3 @@ def create_new_features(data):
     df = pd.concat([df, df_poly], axis=1)
     
     return df
-
-# Añadir el directorio raíz del proyecto al path para importar módulos
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
-sys.path.append(project_root)
-
-data = pd.read_csv(os.path.join(project_root, 'data/CLEAN_TRAIN_DATASET.csv'))
-data = create_new_features(data)
-
-# Guardar el nuevo dataset con las características generadas
-data.to_csv(os.path.join(project_root, 'data/BOOST_DATASET.csv'), index=False)
