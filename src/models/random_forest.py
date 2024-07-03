@@ -26,3 +26,5 @@ class RandomForestModel:
 
     def load_model(self, filepath):
         self.model = joblib.load(filepath)
+
+
