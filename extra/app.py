@@ -1,54 +1,91 @@
 import streamlit as st
-import numpy as np
 import pandas as pd
-import joblib
+import os
+import sys
+from joblib import load
+from utils import input_to_features, get_model_value
 
 # Ruta del modelo
-model_path = '/home/agustin/Documentos/3ro/ML&DL/TrabajoFinal/TPFinal-ML/src/models/saved/xg.joblib'
-model = joblib.load(model_path)
+# Añadir el directorio raíz del proyecto al path para importar módulos
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
+sys.path.append(project_root)
+
+from os.path import dirname, abspath
+d = dirname(dirname(abspath(__file__)))
+sys.path.append(d)
 
 
-# Título de la aplicación
-st.title('Predicción de Precios de Vehículos')
+# Cargar modelo
+model_path = os.path.join(project_root, 'TPFinal-ML/src/models/saved/xg.joblib')
+model = load(model_path)
 
-# Formulario de entrada
-st.header('Ingresa las características del vehículo')
-modelo = st.selectbox('Modelo', ['Modelo1', 'Modelo2', 'Modelo3'])
-año = st.number_input('Año', min_value=2000, max_value=2024, value=2015)
-color = st.selectbox('Color', ['Rojo', 'Azul', 'Negro', 'Blanco'])
-motor = st.selectbox('Motor', ['1.0L', '1.5L', '2.0L'])
-kilometros = st.number_input('Kilómetros', min_value=0, value=50000)
-edad = st.number_input('Edad', min_value=0, value=5)
-km_promedio_por_año = st.number_input('Km promedio por año', min_value=0, value=10000)
-cilindros = st.number_input('Cilindros', min_value=2, max_value=12, value=4)
-turbo = st.selectbox('Turbo', ['No', 'Sí'])
+# Diccionario de marcas y modelos
+# primero, cargo el dataset
+dataset_path = os.path.join(project_root, 'TPFinal-ML/data/pf_suvs_i302_1s2024.csv')
+df = pd.read_csv(dataset_path)
 
-# Preprocesar entrada
-input_data = pd.DataFrame({
-    'Modelo': [modelo],
-    'Año': [año],
-    'Color': [color],
-    'Motor': [motor],
-    'Kilómetros': [kilometros],
-    'Edad': [edad],
-    'Km promedio por año': [km_promedio_por_año],
-    'Cilindros': [cilindros],
-    'Turbo': [1 if turbo == 'Sí' else 0]
-})
+# Crear un diccionario con las marcas y modelos
+car_data = {}
+for marca in df['Marca'].unique():
+    car_data[marca] = df[df['Marca'] == marca]['Modelo'].unique()
 
-def preprocess_input(data):
-    # Aquí debes incluir tu lógica de preprocesamiento
-    # Por ejemplo, transformar variables categóricas a numéricas, etc.
-    data = pd.get_dummies(data)
-    return data
+# Crear un diccionario con los modelos y el tipo de combustible
+model_combustible_data = {}
+for modelo in df['Modelo'].unique():
+    model_combustible_data[modelo] = df[df['Modelo'] == modelo]['Tipo de combustible'].unique()
 
-input_data_processed = preprocess_input(input_data)
+# Crear un diccionario con los modelos y el tipo de motor
+model_motor_data = {}
+for modelo in df['Modelo'].unique():
+    model_motor_data[modelo] = df[df['Modelo'] == modelo]['Motor'].unique()
 
-# Ajustar columnas faltantes
-expected_columns = ['Modelo_Modelo1', 'Modelo_Modelo2', 'Modelo_Modelo3', 'Año', 'Color_Rojo', 'Color_Azul', 'Color_Negro', 'Color_Blanco', 'Motor_1.0L', 'Motor_1.5L', 'Motor_2.0L', 'Kilómetros', 'Edad', 'Km promedio por año', 'Cilindros', 'Turbo']
-input_data_processed = input_data_processed.reindex(columns=expected_columns, fill_value=0)
+# Crear un diccionario con los modelos y el color
+model_color_data = {}
+for modelo in df['Modelo'].unique():
+    model_color_data[modelo] = df[df['Modelo'] == modelo]['Color'].unique()
 
-# Realizar la predicción
-if st.button('Predecir Precio'):
-    prediction = model.predict(input_data_processed)
-    st.write(f'El precio estimado del vehículo es: ${prediction[0]:,.2f}')
+# Crear la interfaz de Streamlit
+st.title('Predicción de Precios de SUVs')
+
+# Selección de las características del coche
+marca = st.selectbox('Marca', options=list(car_data.keys()))
+modelo = st.selectbox('Modelo', options=car_data[marca])
+motor = st.selectbox('Motor', options=model_motor_data[modelo])
+kilometraje = st.number_input('Kilometraje', min_value=0, step=1)
+año = st.number_input('Año', min_value=1990, max_value=2024, step=1)
+color = st.selectbox('Color', options=model_color_data[modelo])
+combustible = st.selectbox('Combustible', options=model_combustible_data[modelo])
+transmision = st.selectbox('Transmisión', options=['Manual', 'Automática'])
+
+# Crear un diccionario con las características de entrada
+input_features = {
+    'Marca': marca,
+    'Modelo': modelo,
+    'Motor': motor,
+    'Kilómetros': kilometraje,
+    'Año': año,
+    'Color': color,
+    'Tipo de combustible': combustible,
+    'Transmisión': transmision
+}
+
+# Convertir las características de entrada a un DataFrame
+input_data = pd.DataFrame([input_features])
+
+# Mostrar las características de entrada
+st.write('Características de Entrada:')
+st.write(input_data)
+
+
+# Botón para realizar la predicción
+if st.button('Realizar Predicción'):
+    # Transformar los datos de entrada
+    input_data = input_to_features(input_data)
+
+    # Realizar la predicción
+    prediction = model.predict(input_data)
+    
+    # Mostrar el resultado de la predicción
+    st.write('Predicción del Precio del SUV:')
+    st.write(prediction[0])
+
