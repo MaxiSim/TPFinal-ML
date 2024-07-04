@@ -30,7 +30,13 @@ def histogram_of_feature(feature, path_data):
     data = read_data(path_data)
     fig = go.Figure()
     fig.add_trace(go.Histogram(x=data[feature]))
-    fig.update_layout(title_text=f'Histogram of feature "{feature}"', xaxis_title_text=feature, yaxis_title_text='Frequency')
+    fig.update_layout(
+        title_text=f'Histogram of feature "{feature}"',
+        xaxis_title_text=feature,
+        yaxis_title_text='Frequency',
+        width=500,
+        height=500
+    )
     try:
         #checkeo si el feature es un numero
         check = float(data[feature][random.randint(0, len(data))])
@@ -46,10 +52,13 @@ def plot (outliers, thresholds):
     fig.add_trace(go.Scatter(x=thresholds, y=outliers, mode='markers', marker=dict(color='red', size=6), showlegend=False))  # Mostrar umbrales
 
     # Personalizar el diseño del gráfico
-    fig.update_layout(title='Gráfico de Box con Outliers y Thresholds',
-                    xaxis=dict(title='Thresholds'),
-                    yaxis=dict(title='Valores'),
-                    showlegend=False)
+    fig.update_layout(
+        title='Gráfico de Box con Outliers y Thresholds',
+        xaxis=dict(title='Thresholds'),
+        yaxis=dict(title='Valores'),
+        width=1000,
+        height=1000
+    )
 
     # Mostrar el gráfico
     fig.show()

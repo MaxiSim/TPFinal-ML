@@ -38,7 +38,7 @@ def predict(model_type, model_name):
         sys.exit(1)
 
     y_pred = model.predict(data)
-    output_file = os.path.join(project_root, 'predictions_Simian_Manzano.csv')
+    output_file = os.path.join(project_root, 'results/predictions/predictions_Simian_Manzano.csv')
     with open(output_file, 'w', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(['id', 'Predicted_Price_USD'])  # Write header

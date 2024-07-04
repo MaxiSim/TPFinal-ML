@@ -20,7 +20,6 @@ def create_new_features(data):
     # Ratios
     df['Engine_Size_per_Year'] = df['Motor'] / df['Edad'].replace(0, np.nan)
     df['Km_per_Cylinder'] = df['Kilómetros'] / df['Cilindros'].replace(0, np.nan)
-    df['Price_per_Km'] = df['Precio'] / df['Kilómetros'].replace(0, np.nan)
 
     # Interacciones entre características
     df['Motor_Age_Interaction'] = df['Motor'] * df['Edad']
@@ -39,7 +38,8 @@ def create_new_features(data):
 
     df_poly = pd.DataFrame(poly_features, columns=poly_feature_names)
     
+    df_poly = df_poly.drop(columns=['Año', 'Kilómetros', 'Edad', 'Km promedio por año', 'Cilindros', 'Motor'])
     # Concatenar las características polinomiales al dataframe original
-    df = pd.concat([df, df_poly], axis=1)
+    df = pd.concat([df, df_poly], axis=1) 
     
     return df
