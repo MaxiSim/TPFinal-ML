@@ -140,6 +140,15 @@ class DataCleaner:
         # ---- car manufacturer ----
         self.clean_car_manufacturer()
         
+        # ---- add columns ----
+        self.add_new_feature(False, 'Marca_Abarth')
+        self.add_new_feature(False, 'Marca_Sandero')
+        self.add_new_feature(False, 'Tipo de combustible_Híbrido/Diesel')
+        
+        # ---- transmission ----
+        automatico = self.data.loc[self.data['Transmisión'] == 'Automático'].index
+        self.rewrite_sample('Transmisión', automatico, 'Automática')
+        
         # ---- one-hot encoding ----
         self.one_hot_encoding('Transmisión')
         self.one_hot_encoding('Marca')
@@ -353,7 +362,8 @@ class DataCleaner:
     def clean_car_manufacturer(self):
         # clean_car_manufacturer
         # Función que corrige errores en la columna de marca de los autos.
-        
+        self.data.loc[self.data['Marca'] == 'BMW x3 2.5 si xdrive', 'Marca'] = 'BMW'
+        self.data.loc[self.data['Marca'] == 'Chrysler', 'Marca'] = 'Jeep'
         self.data.loc[self.data['Marca'] == 'DS7', 'Marca'] = 'DS'
         self.data.loc[self.data['Marca'] == 'DS AUTOMOBILES', 'Marca'] = 'DS'
         self.data.loc[self.data['Marca'] == 'hiunday', 'Marca'] = 'Hyundai'
@@ -536,6 +546,17 @@ class DataCleaner:
         
         data = self.data
         data = pd.get_dummies(data, columns=[feature])
+        self.data = data
+        
+    def add_new_feature(self, feature, new_feature):
+        # add_new_feature
+        # Función que agrega una nueva característica al dataset.
+        # Parámetros:
+        # - feature: Nombre de la columna a utilizar para crear la nueva característica.
+        # - new_feature: Nombre de la nueva característica a agregar.
+        
+        data = self.data
+        data[new_feature] = feature
         self.data = data
 
     # def target_encoding(self, feature, target):

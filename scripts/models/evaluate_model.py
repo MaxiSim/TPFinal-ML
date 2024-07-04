@@ -29,7 +29,7 @@ def main(args):
     model_type = args.type
     model_name = args.saved_model_name
 
-    filepath = os.path.join(project_root, 'data/BOOST_DATASET.csv')  # Ruta al archivo CSV
+    filepath = os.path.join(project_root, 'data/CLEAN_TRAIN_DATASET.csv')  # Ruta al archivo CSV
     logging.info(f"Cargando datos desde {filepath}")
     data = load_data(filepath)
     
@@ -59,7 +59,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluar un modelo de ML especificado.")
-    parser.add_argument('--type', type=str, help="El tipo de modelo a usar (e.g., 'linear_regression', 'random_forest', 'xgboost')")
+    parser.add_argument('--type', type=str, help="El tipo de modelo a usar (e.g., 'linear_regression', 'random_forest', 'xgboost', 'nn')")
     parser.add_argument('saved_model_name', type=str, help="El nombre del modelo guardado (sin la extensión .joblib)")
     args = parser.parse_args()
     main(args)

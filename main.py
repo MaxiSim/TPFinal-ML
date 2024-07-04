@@ -6,9 +6,9 @@ def main ():
     test_file =  'data/pf_suvs_test_ids_i302_1s2024.csv'
     process_test_data(test_file)
     print('Test data processed')
-    predict('xgboost', 'xg_bayes_oversampled')
+    predict('xgboost', 'xg_opt_over')
+    print('Predictions saved to results/predictions/predictions_Simian_Manzano.csv')
     
 if __name__ == "__main__":
     main()
-    print('Test data processed')
     
