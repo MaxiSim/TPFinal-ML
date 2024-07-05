@@ -70,20 +70,20 @@ class DataCleaner:
         
         # ---- color ----
         self.process_color()  
-        self.encode_categorical('Color')  
+        # self.encode_categorical('Color')  
         
         # ---- car manufacturer ----
         self.clean_car_manufacturer()
         
         # ---- one-hot encoding ----
-        self.one_hot_encoding('Transmisión')
-        self.one_hot_encoding('Marca')
-        self.one_hot_encoding('Tipo de combustible')
-        self.one_hot_encoding('Tipo de vendedor')
+        # self.one_hot_encoding('Transmisión')
+        # self.one_hot_encoding('Marca')
+        # self.one_hot_encoding('Tipo de combustible')
+        # self.one_hot_encoding('Tipo de vendedor')
         
         # ---- target encoding ----
-        self.model_encoding = self.target_encoding('Modelo', 'Precio')
-        self.save_encodings()
+        # self.model_encoding = self.target_encoding('Modelo', 'Precio')
+        # self.save_encodings()
         # ---- delete columns ----
            # ---- suv / cameras / doors / title ----
         self.delete_columns('Tipo de carrocería')
@@ -94,7 +94,7 @@ class DataCleaner:
         self.delete_columns('Moneda')
         
         # ----- save data -----
-        self.rewrite_data('data/CLEAN_TRAIN_DATASET.csv')
+        self.rewrite_data('data/CLEAN_APP_DATASET.csv')
         
         
         
@@ -135,7 +135,7 @@ class DataCleaner:
         
         # ---- color ----
         self.process_color()
-        self.encode_categorical('Color')
+        # self.encode_categorical('Color')
         
         # ---- car manufacturer ----
         self.clean_car_manufacturer()
@@ -150,10 +150,10 @@ class DataCleaner:
         self.rewrite_sample('Transmisión', automatico, 'Automática')
         
         # ---- one-hot encoding ----
-        self.one_hot_encoding('Transmisión')
-        self.one_hot_encoding('Marca')
-        self.one_hot_encoding('Tipo de combustible')
-        self.one_hot_encoding('Tipo de vendedor')
+        # self.one_hot_encoding('Transmisión')
+        # self.one_hot_encoding('Marca')
+        # self.one_hot_encoding('Tipo de combustible')
+        # self.one_hot_encoding('Tipo de vendedor')
         
         # ---- target encoding ----
         self.eval_model_encode()

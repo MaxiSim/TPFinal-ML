@@ -23,12 +23,12 @@ def main():
     data = load_data(os.path.join(project_root, 'data/pf_suvs_i302_1s2024.csv'))
     cleaner = DataCleaner(data, project_root)
 
-    data = pd.read_csv(os.path.join(project_root, 'data/CLEAN_TRAIN_DATASET.csv'))
-    data = create_new_features(data)
-    data = oversampling(data)
+    data = pd.read_csv(os.path.join(project_root, 'data/CLEAN_APP_DATASET.csv'))
+    # data = create_new_features(data)
+    # data = oversampling(data)
 
-    # Guardar el nuevo dataset con las características generadas
-    data.to_csv(os.path.join(project_root, 'data/BOOST_TRAIN_DATASET.csv'), index=False)
+    # # # Guardar el nuevo dataset con las características generadas
+    # data.to_csv(os.path.join(project_root, 'data/BOOST_TRAIN_DATASET.csv'), index=False)
     
 
 if __name__ == '__main__':

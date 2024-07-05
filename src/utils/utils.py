@@ -1,4 +1,5 @@
 from plotly import graph_objects as go
+import numpy as np
 
 def get_model(model_name, optimize=False, X_train=None, y_train=None, input_dim=None):
     if model_name == 'linear_regression':
@@ -39,11 +40,28 @@ def plot_predictions(y_test, predictions):
         title='Predicciones vs. Valores reales',
         xaxis_title='Valores reales',
         yaxis_title='Predicciones',
-        showlegend=False
+        showlegend=False,
+        template='plotly_dark'
     )
 
     fig.show()
     
 
 
-    
+import matplotlib.pyplot as plt
+
+def plot_feature_importances(importances, feature_names):
+    # Ordenar las importancias en orden descendente
+    indices = np.argsort(importances)[::-1]
+
+    # Ordenar los nombres de las características según la importancia
+    sorted_feature_names = [feature_names[i] for i in indices]
+
+    # Crear el gráfico
+    plt.figure(figsize=(10, 6))
+    plt.title("Importancia de las Características")
+    plt.bar(range(len(importances)), importances[indices], align="center")
+    plt.xticks(range(len(importances)), sorted_feature_names, rotation=45)
+    plt.xlim([-1, len(importances)])
+    plt.tight_layout()
+    plt.show()

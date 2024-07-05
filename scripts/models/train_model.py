@@ -13,7 +13,7 @@ log_dir = os.path.join(project_root, 'logs')
 logging.basicConfig(filename=os.path.join(log_dir, 'training.log'), level=logging.INFO, format='%(asctime)s:%(levelname)s:%(message)s')
 
 from src.data.load_data import load_data
-from src.utils.utils import get_model
+from src.utils.utils import get_model, plot_feature_importances
 
 def main(args):
     # main
@@ -63,7 +63,9 @@ def main(args):
         model.save_model(os.path.join(project_root, 'src/models/saved', f'{args.name}.joblib'))
         logging.info(f"Modelo guardado en {os.path.join(project_root, 'src/models/saved', f'{model_type}.joblib')}")
 
+    importances = model.feature_importances_
 
+    plot_feature_importances(importances, X.columns)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Entrenar un modelo de ML especificado.")
