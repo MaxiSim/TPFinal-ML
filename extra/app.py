@@ -12,7 +12,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')
 sys.path.append(project_root)
 
 # Cargar modelo
-model_path = os.path.join(project_root, 'TPFinal-ML/src/models/saved/xg_opt_over.joblib')
+model_path = os.path.join(project_root, 'tpfinal-ml/src/models/saved/xg_opt_over.joblib')
 model = load(model_path)
 
 # Diccionario de marcas y modelos
