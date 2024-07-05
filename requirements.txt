@@ -5,5 +5,5 @@ joblib
 xgboost
 scikit-optimize
 tensorflow
-streamlit
 plotly
+
