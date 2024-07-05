@@ -218,7 +218,10 @@ def input_to_features(input_data):
     input_data['Edad'] = 2024 - input_data['Año']
     input_data['Km promedio por año'] = input_data['Kilómetros'] / input_data['Edad']
     input_data['Cilindros'] = 4  # Suposición común, ajusta según tu necesidad
-    input_data['Turbo'] = False
+    if input_data['Turbo'][0] == 'Sí':
+        input_data['Turbo'] = 1
+    else:
+        input_data['Turbo'] = 0
 
     # Establecer el tipo de vendedor como particular
     input_data['Tipo de vendedor_concesionaria'] = False
