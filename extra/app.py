@@ -16,7 +16,7 @@ model_path = os.path.join(project_root, 'tpfinal-ml/src/models/saved/xg_opt_over
 model = load(model_path)
 
 # Diccionario de marcas y modelos
-dataset_path = os.path.join(project_root, 'TPFinal-ML/data/CLEAN_APP_DATASET.csv')
+dataset_path = os.path.join(project_root, 'tpfinal-ml/data/CLEAN_APP_DATASET.csv')
 df = pd.read_csv(dataset_path)
 
 # Crear un diccionario con las marcas y modelos
@@ -61,7 +61,7 @@ st.set_page_config(page_title='Predicción de Precios de SUVs', page_icon='🚙'
 
 
 # Añadir un logo
-logo_path = os.path.join(project_root, 'TPFinal-ML/extra/logo.png')
+logo_path = os.path.join(project_root, 'tpfinal-ml/extra/logo.png')
 if os.path.exists(logo_path):
     st.image(logo_path, use_column_width=True)
 
